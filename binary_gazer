@@ -9,11 +9,10 @@
 import os, os.path, sys, glob, time
 import numpy as np
 import scipy, scipy.optimize
-import sidereal
 import astropy.time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 import astropy.units as u
-import pylab as plt
+import matplotlib.pyplot as plt
 
 
 def calculate_parallactic_angle(HA_h, source_declination_deg, obs_latitude_deg):
@@ -46,9 +45,10 @@ def calculate_altitude_azimuth_and_parang_for_source_at_observatory(datetime_utc
 
         observatory_location = EarthLocation(lat = obs_latitude_deg *u.deg, lon= obs_longitude_deg *u.deg, height=0*u.m)
 
-        t_utc                     = astropy.time.Time(datetime_utc_string,  format='iso', scale='utc')
-        t_greenwich_sidereal      = sidereal.SiderealTime.fromDatetime(t_utc.datetime)
-        t_observatory_sidereal    = t_greenwich_sidereal.lst( obs_longitude_deg * np.pi/180.  )
+        t_utc                     = astropy.time.Time(datetime_utc_string,  format='iso', scale='utc', location = observatory_location)
+        #t_greenwich_sidereal      = sidereal.SiderealTime.fromDatetime(t_utc.datetime)
+        #t_observatory_sidereal    = t_greenwich_sidereal.lst( obs_longitude_deg * np.pi/180.  )
+        t_observatory_sidereal    = t_utc.sidereal_time('mean')
 
         source_coords_radec = SkyCoord(source_radec_string, unit=(u.hourangle, u.deg), obstime="J2000.0")
         source_coords_altaz = source_coords_radec.transform_to(AltAz(obstime=t_utc, location=observatory_location))
